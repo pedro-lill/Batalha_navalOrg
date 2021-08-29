@@ -38,7 +38,9 @@ main:
 insere_embarcacoes:
     lb t4, 0(a0)            # carrega navios em t4
     addi t4, t4, -48       # a0/t4 => 3              cod ascci 0/ trasnformar a string 3 em int 3
-    
+    addi t3, t3, 0
+    addi t5, t5, 1
+    addi t6, t6, 10
     
     teste_1:
         beq t4, zero, next_loop       # identifica_qtd
@@ -60,6 +62,20 @@ insere_embarcacoes:
         lb s3, (a0)
         addi s3, s3, -48
 
+        direcao:
+            beq s0, t3, horizontal
+            beq s0, t5, vertical
+        
+        
+        tam_N:
+            blt s1, t6, comprimento
+
+        pos_x:
+            blt s2, t6, x
+
+        
+        pos_y:
+            blt s3, t6, y
 	next_loop:
         addi a0, a0, 0
         lb t4, (a0)
@@ -67,9 +83,11 @@ insere_embarcacoes:
 
 
 
-identifica_qtd:
+comprimento:
+
     
 horizontal:
+
 
 vertical:
 
@@ -77,6 +95,7 @@ x:
     
 
 y:
+    j next_loop
 
 end_count:
     
