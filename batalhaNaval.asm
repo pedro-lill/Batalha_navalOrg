@@ -16,18 +16,21 @@
     #     
     .data
 navios: .string     "3 1 5 1 1 0 5 2 2 0 1 6 4"
+matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-#titulo: .asciiz "\n************* Batalha naval *************\n*****************************************\n" # **                MENU                 **\n**      1       P1 vs IA               **\n**      2       P1 vs P2               **\n**      3       EXIT                   **\n*****************************************\n*****************************************\n"
-#maquina_jogando: .asciiz "\nMaquina esta processando a jogada...\n"
-#linha: .asciiz "\n"
-#txt_jogada_H: .asciiz "Coluna: "
-#txt_jogada_V: .asciiz "Linha: "
-#txt_player1: .asciiz "Player 1, em qual posicao deseja jogar? "
-#txt_menu: .asciiz "Digite a opcao: "
-#msg_valor_menu: "\nATENCAO: Valor do menu deve ser menor ou igual a 3!\n"
+# titulo: .asciiz "\n************* Batalha naval *************\n*****************************************\n" # **                MENU                 **\n**      1       P1 vs IA               **\n**      2       P1 vs P2               **\n**      3       EXIT                   **\n*****************************************\n*****************************************\n"
+# maquina_jogando: .asciiz "\nMaquina esta processando a jogada...\n"
+# linha: .asciiz "\n"
+# txt_jogada_H: .asciiz "Coluna: "
+# txt_jogada_V: .asciiz "Linha: "
+# txt_player1: .asciiz "Player 1, em qual posicao deseja jogar? "
+# txt_menu: .asciiz "Digite a opcao: "
+# msg_valor_menu: "\nATENCAO: Valor do menu deve ser menor ou igual a 3!\n"
  
-#txt_placar: .asciiz "\n*************     PLACAR    *************\n*****************************************\n" # **      PLAYER 1        PLAYER 2       **\n**         "            
-#espaco: .asciiz "               "
+# txt_placar: .asciiz "\n*************     PLACAR    *************\n*****************************************\n" # **      PLAYER 1        PLAYER 2       **\n**         "            
+# espaco: .asciiz "
+br_n:	.string		"\n"
+space:	.string		" "
    .text
 
 main:
@@ -38,13 +41,16 @@ main:
 insere_embarcacoes:
     lb t4, 0(a0)            # carrega navios em t4
     addi t4, t4, -48       # a0/t4 => 3              cod ascci 0/ trasnformar a string 3 em int 3
+
     addi t3, t3, 0
-    addi t5, t5, 1
+    addi t5, t5, 4
     addi t6, t6, 10
+    addi s9, zero, 1             # contador de navios
     
     teste_1:
         beq t4, zero, next_loop       # identifica_qtd
     le_direcao:
+        la s10, matriz
         
         addi a0, a0, 2      # horizontal[0] ou vertical[1]
         lb s0, (a0)         # direcao em s0
@@ -62,10 +68,15 @@ insere_embarcacoes:
         lb s3, (a0)
         addi s3, s3, -48
 
+        # (L * QTD_colunas + C) * 4
+        mul s11, s2, t6      # l *qtd colunas
+        add s11, s11, s3     # l *qtd colunas + C
+        mul s11, s11, t5     # (l *qtd colunas + C) * 4 
+        add s10, s11, zero  
+
         direcao:
             beq s0, t3, horizontal
-            beq s0, t5, vertical
-        
+            j vertical
         
         tam_N:
             blt s1, t6, comprimento
@@ -73,15 +84,12 @@ insere_embarcacoes:
         pos_x:
             blt s2, t6, x
 
-        
         pos_y:
             blt s3, t6, y
 	next_loop:
         addi a0, a0, 0
         lb t4, (a0)
         j teste_1
-
-
 
 comprimento:
 
@@ -90,6 +98,7 @@ horizontal:
 
 
 vertical:
+    
 
 x:
     
