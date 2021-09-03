@@ -91,20 +91,34 @@ insere_embarcacoes:
         lb t4, (a0)
         j teste_1
 
-comprimento:
-
-    
-horizontal:
+    comprimento:
+        # = 5
 
 
-vertical:
-    
+    horizontal:
+        lw t5, 0(s10)
+        beq s9, s0, end             # count e comprimento
 
-x:
-    
+        addi s9, s9, 1
 
-y:
-    j next_loop
 
-end_count:
+
+    vertical:
+        # loop: enquanto o comprimento for menor que o count
+        # inserir na matriz o numero do navio(reg pro navio)
+        #  posicao é a que esta em s10
+        #   proxima pos é a atual+40
+        #
+        #   add reg navio
+        #   add count
+        #
+        #
+
+    x:
+
+
+    y:
+        j next_loop
+
+    end_count:
     
