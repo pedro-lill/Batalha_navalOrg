@@ -16,20 +16,9 @@
     #     
     .data
 navios: .string     "3 1 5 1 1 0 5 2 2 0 1 6 4"
+br_n: .string       "\n"
 matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-# titulo: .asciiz "\n************* Batalha naval *************\n*****************************************\n" # **                MENU                 **\n**      1       P1 vs IA               **\n**      2       P1 vs P2               **\n**      3       EXIT                   **\n*****************************************\n*****************************************\n"
-# maquina_jogando: .asciiz "\nMaquina esta processando a jogada...\n"
-# linha: .asciiz "\n"
-# txt_jogada_H: .asciiz "Coluna: "
-# txt_jogada_V: .asciiz "Linha: "
-# txt_player1: .asciiz "Player 1, em qual posicao deseja jogar? "
-# txt_menu: .asciiz "Digite a opcao: "
-# msg_valor_menu: "\nATENCAO: Valor do menu deve ser menor ou igual a 3!\n"
- 
-# txt_placar: .asciiz "\n*************     PLACAR    *************\n*****************************************\n" # **      PLAYER 1        PLAYER 2       **\n**         "            
-# espaco: .asciiz "
-br_n:	.string		"\n"
 space:	.string		" "
    .text
 
@@ -48,9 +37,10 @@ insere_embarcacoes:
     addi s9, zero, 1             # contador de navios
     
     teste_1:
-        beq t4, zero, next_loop       # identifica_qtd
+        beq t4, zero, end       # identifica_qtd
     le_direcao:
         la s10, matriz
+        add s8, zero, zero
         
         addi a0, a0, 2      # horizontal[0] ou vertical[1]
         lb s0, (a0)         # direcao em s0
@@ -72,53 +62,63 @@ insere_embarcacoes:
         mul s11, s2, t6      # l *qtd colunas
         add s11, s11, s3     # l *qtd colunas + C
         mul s11, s11, t5     # (l *qtd colunas + C) * 4 
-        add s10, s11, zero  
+        add s10, s10, s11
 
-        direcao:
+        # addi s8, s8, 1
+
+        teste_cond:
+            beq s8, s1, next_loop
+        corpo:
+            sw s8, (s10)
+
+        incremento:
             beq s0, t3, horizontal
             j vertical
-        
-        tam_N:
-            blt s1, t6, comprimento
+            horizontal:
+                addi s10, s10, 4
+                addi s8, s8, 1
+                j teste_cond
+            vertical:
+                addi s10, s10, 40
+                addi s8, s8, 1
+                j teste_cond
 
-        pos_x:
-            blt s2, t6, x
+        printa_matriz:
+            add t0, zero, zero # quando chegar em 100, termina
+            addi t1, zero, 100 
+            add t2, zero, zero # a cada 10, um \n
+            addi t3, zero, 10
+            la a1, matriz
+            teste_condicao_prin:
+                beq t0, t1, fim_prin
+                beq t2, t3, pula_prin
+                j corpo_laco_prin
+            pula_prin:
+                add t2, zero, zero
+                la a0, br_n
+                li a7, 4
+                ecall
+            corpo_laco_prin:
+                lw a0, (a1)
+                li a7, 1
+                ecall
 
-        pos_y:
-            blt s3, t6, y
+                la a0, space
+                li a7, 4
+                ecall
+            incremento_controle_prin:
+                addi a1, a1, 4
+                addi t0, t0, 1
+                addi t2, t2, 1
+                j teste_condicao_prin
+            fim_prin:
+                ret
+
 	next_loop:
         addi a0, a0, 0
         lb t4, (a0)
         j teste_1
-
-    comprimento:
-        # = 5
-
-
-    horizontal:
-        lw t5, 0(s10)
-        beq s9, s0, end             # count e comprimento
-
-        addi s9, s9, 1
-
-
-
-    vertical:
-        # loop: enquanto o comprimento for menor que o count
-        # inserir na matriz o numero do navio(reg pro navio)
-        #  posicao é a que esta em s10
-        #   proxima pos é a atual+40
-        #
-        #   add reg navio
-        #   add count
-        #
-        #
-
-    x:
-
-
-    y:
-        j next_loop
-
-    end_count:
+    
+end:
+    nop
     
