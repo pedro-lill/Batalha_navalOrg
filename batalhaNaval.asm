@@ -31,16 +31,18 @@ insere_embarcacoes:
     lb t4, 0(a0)            # carrega navios em t4
     addi t4, t4, -48       # a0/t4 => 3              cod ascci 0/ trasnformar a string 3 em int 3
 
-    addi t3, t3, 0
-    addi t5, t5, 4
-    addi t6, t6, 10
+    li t3, 0
+    li t5, 4
+    li t6, 10
+
     addi s9, zero, 1             # contador de navios
     
     teste_1:
-        beq t4, zero, end       # identifica_qtd
-    le_direcao:
-        la s10, matriz
-        add s8, zero, zero
+        # lb t4, 0(a0)            # carrega navios em t4
+        # addi t4, t4, -48       # a0/t4 => 3              cod ascci 0/ trasnformar a string 3 em int 3
+        beq t4, zero, end_1       # identifica_qtd
+    corpo_1:
+        la s10, matriz      # carrega matriz em s10
         
         addi a0, a0, 2      # horizontal[0] ou vertical[1]
         lb s0, (a0)         # direcao em s0
@@ -62,63 +64,64 @@ insere_embarcacoes:
         mul s11, s2, t6      # l *qtd colunas
         add s11, s11, s3     # l *qtd colunas + C
         mul s11, s11, t5     # (l *qtd colunas + C) * 4 
-        add s10, s10, s11
-
-        # addi s8, s8, 1
-
-        teste_cond:
-            beq s8, s1, next_loop
-        corpo:
-            sw s8, (s10)
-
-        incremento:
-            beq s0, t3, horizontal
-            j vertical
+        add s10, s10, s11       # s10 esta com a pos atual na matriz
+        
+        teste_2:
+            beq s1, zero, incremento_1		# s8-> count_comprimento. s1 comprimento
+        corpo_2:
+            sw s9, (s10)
+        incremento_2:       
+            addi s1, s1, -1	
+            beq s0, t3, horizontal		# se s0 = 0 entao ? horizontal
+            j vertical				# se nao ? vertical
             horizontal:
-                addi s10, s10, 4
-                addi s8, s8, 1
-                j teste_cond
+                addi s10, s10, 4			# add o n barco de 4 em 4 pos
+                # add s5, zero, ra
+                # jal funcao
+                # add ra, zero, s5
+                j teste_2
             vertical:
                 addi s10, s10, 40
-                addi s8, s8, 1
-                j teste_cond
+                j teste_2
+       incremento_1:
+            addi s9, s9, 1
+            addi t4, t4, -1 
+            j teste_1
+     
+        end_1:
+            ret
 
-        printa_matriz:
-            add t0, zero, zero # quando chegar em 100, termina
-            addi t1, zero, 100 
-            add t2, zero, zero # a cada 10, um \n
-            addi t3, zero, 10
-            la a1, matriz
-            teste_condicao_prin:
-                beq t0, t1, fim_prin
-                beq t2, t3, pula_prin
-                j corpo_laco_prin
-            pula_prin:
-                add t2, zero, zero
-                la a0, br_n
-                li a7, 4
-                ecall
-            corpo_laco_prin:
-                lw a0, (a1)
-                li a7, 1
-                ecall
 
-                la a0, space
-                li a7, 4
-                ecall
-            incremento_controle_prin:
-                addi a1, a1, 4
-                addi t0, t0, 1
-                addi t2, t2, 1
-                j teste_condicao_prin
-            fim_prin:
-                ret
-
-	next_loop:
-        addi a0, a0, 0
-        lb t4, (a0)
-        j teste_1
+printa_matriz:  # peguei essa fun??o do alex
+    add t0, zero, zero # quando chegar em 100, termina
+    addi t1, zero, 100 
+    add t2, zero, zero # a cada 10, um \n
+    addi t3, zero, 10
+    la a1, matriz
+    teste_condicao_prin:
+        beq t0, t1, fim_prin
+        beq t2, t3, pula_prin
+        j corpo_laco_prin
+    pula_prin:
+        add t2, zero, zero
+        li a0, 10
+        li a7, 11
+        ecall
+    corpo_laco_prin:
+        lw a0, (a1)
+        li a7, 1
+        ecall
+        li a0, 32
+        li a7, 11
+        ecall
+    incremento_controle_prin:
+        addi a1, a1, 4
+        addi t0, t0, 1
+        addi t2, t2, 1
+        j teste_condicao_prin
+    fim_prin:
+        ret
+	
     
 end:
     nop
-    
