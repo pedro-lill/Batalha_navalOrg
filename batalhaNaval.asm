@@ -23,11 +23,14 @@ space:	.string		" "
    .text
 
 main:
-    la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
     # jal identifica_qtd      # jal para identifica_qtd
     # add s0, zero, s0
+    jal insere_embarcacoes
+    jal printa_matriz
+    jal fim
 
 insere_embarcacoes:
+    la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
     lb t4, 0(a0)            # carrega navios em t4
     addi t4, t4, -48       # a0/t4 => 3              cod ascci 0/ trasnformar a string 3 em int 3
 
@@ -90,6 +93,15 @@ insere_embarcacoes:
      
         end_1:
             ret
+        # msg_erro1:
+#        		la a0, nomemensagem
+#        		li a7, 4
+#        		ecall
+#        		j fim
+#        msg_erro2:
+#        		j fim
+#        msg_erro3:
+#		j fim
 
 
 printa_matriz:  # peguei essa fun??o do alex
@@ -123,5 +135,5 @@ printa_matriz:  # peguei essa fun??o do alex
         ret
 	
     
-end:
+fim:
     nop
