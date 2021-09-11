@@ -15,7 +15,7 @@
     # gerando uma mensagem de erro para as seguintes situa??es:
     #     
     .data
-navios: .string     "3 1 8 1 1 0 5 2 2 0 4 6 4"
+navios: .string     "3 1 8 11 1 0 5 2 2 0 4 6 4 "
 br_n: .string       "\n"
 msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
 msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
@@ -41,7 +41,7 @@ insere_embarcacoes:
     li t3, 0            # carrega 0 em t3
     li t5, 4            # carrega 4 em t5
     li t6, 10           # carrega 10 em t6
-    li s7, 32		# carrega espaço em s7
+    li s7, 32		# carrega espa�o em s7
 
     addi s9, zero, 1             # contador de navios
     
@@ -58,22 +58,28 @@ insere_embarcacoes:
  
         addi a0, a0, 3      	# numero 3(4) da string
         # addi a0, a0, 1		# ando uma casa em a0 e guardo em s8
-        lb s8, (a0)
-        bne s8, s7, msg_cpm	# se a pos em a0(s8) for diferente de space -> msgCpm
-        addi a0, a0, -1		# ando uma casa em a0 e guardo em s8
-        lb s1, (a0)		# salvo a pos de a0 em s1
+        lb s4, (a0)
+        bne s4, s7, msg_cpm	    # se a pos em a0(s8) for diferente de space -> msgCpm
+        addi a0, a0, -1		    # ando uma casa em a0 e guardo em s8
+        lb s1, (a0)		        # salvo a pos de a0 em s1
         addi s1, s1, -48
         
 
-        addi a0, a0, 2      # linha inicial
-        lb s2, (a0)
-        addi s2, s2, -48
-        bge s2, t6, msg_posLin
+        addi a0, a0, 3          # eu ando at� a posicao depois do numero (que deveria ser um espaco)     
+        # addi a0, a0, 1	
+        lb s5, (a0)             # salvo em um reg temp
+        bne s5, s7, msg_posLin  # teste se ela � diferente de espa�o
+        addi a0, a0, -1		    # volto para a posicao que tem o numero
+        lb s2, (a0)		        # salvo em s2
+        addi s2, s2, -48        # transformo em int
 
-        addi a0, a0, 2      # coluna inicial
-        lb s3, (a0)
-        addi s3, s3, -48
-        bge s3, t6, msg_posCol
+        addi a0, a0, 3          # eu ando at� a posicao depois do numero (que deveria ser um espaco)         
+        # addi a0, a0, 1        	
+        lb s6, (a0)             # salvo em um reg temp
+        bne s6, s7, msg_posCol  # teste se ela � diferente de espa�o
+        addi a0, a0, -1         # volto para a posicao que tem o numero		
+        lb s3, (a0)             # salvo em s3		   
+        addi s3, s3, -48        # transformo em int
 
         # (L * QTD_colunas + C) * 4
         mul s11, s2, t6      # l *qtd colunas
