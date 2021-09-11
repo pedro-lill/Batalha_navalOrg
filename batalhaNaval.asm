@@ -15,8 +15,12 @@
     # gerando uma mensagem de erro para as seguintes situa??es:
     #     
     .data
-navios: .string     "3 1 5 1 1 0 5 2 2 0 1 6 4"
+navios: .string     "3 1 8 1 1 0 5 2 2 0 4 6 4"
 br_n: .string       "\n"
+msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
+msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
+msgPosLin:     .string     "A posicao do navio eh invalida (linha)"
+
 matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 space:	.string		" "
@@ -34,9 +38,10 @@ insere_embarcacoes:
     lb t4, 0(a0)            # carrega navios em t4
     addi t4, t4, -48       # a0/t4 => 3              cod ascci 0/ trasnformar a string 3 em int 3
 
-    li t3, 0
-    li t5, 4
-    li t6, 10
+    li t3, 0            # carrega 0 em t3
+    li t5, 4            # carrega 4 em t5
+    li t6, 10           # carrega 10 em t6
+    li s7, 32		# carrega espaço em s7
 
     addi s9, zero, 1             # contador de navios
     
@@ -51,17 +56,24 @@ insere_embarcacoes:
         lb s0, (a0)         # direcao em s0
         addi s0, s0, -48    # transforma a string em inteiro(ascii)
  
-        addi a0, a0, 2      # comprimento
-        lb s1, (a0)
+        addi a0, a0, 3      	# numero 3(4) da string
+        # addi a0, a0, 1		# ando uma casa em a0 e guardo em s8
+        lb s8, (a0)
+        bne s8, s7, msg_cpm	# se a pos em a0(s8) for diferente de space -> msgCpm
+        addi a0, a0, -1		# ando uma casa em a0 e guardo em s8
+        lb s1, (a0)		# salvo a pos de a0 em s1
         addi s1, s1, -48
+        
 
         addi a0, a0, 2      # linha inicial
         lb s2, (a0)
         addi s2, s2, -48
+        bge s2, t6, msg_posLin
 
         addi a0, a0, 2      # coluna inicial
         lb s3, (a0)
         addi s3, s3, -48
+        bge s3, t6, msg_posCol
 
         # (L * QTD_colunas + C) * 4
         mul s11, s2, t6      # l *qtd colunas
@@ -93,15 +105,21 @@ insere_embarcacoes:
      
         end_1:
             ret
-        # msg_erro1:
-#        		la a0, nomemensagem
-#        		li a7, 4
-#        		ecall
-#        		j fim
-#        msg_erro2:
-#        		j fim
-#        msg_erro3:
-#		j fim
+        msg_cpm:
+        		la a0, msgCpm
+        		li a7, 4
+        		ecall
+        		j fim
+        msg_posCol:
+        		la a0, msgPosCol
+        		li a7, 4
+        		ecall
+        		j fim
+        msg_posLin:
+		        la a0, msgPosLin
+        		li a7, 4
+        		ecall
+        		j fim
 
 
 printa_matriz:  # peguei essa fun??o do alex
@@ -123,8 +141,8 @@ printa_matriz:  # peguei essa fun??o do alex
         lw a0, (a1)
         li a7, 1
         ecall
-        li a0, 32
-        li a7, 11
+        li a0, 32       # 32 = space (tabela ascii)
+        li a7, 11       # 11 = \n (tabela ascii)
         ecall
     incremento_controle_prin:
         addi a1, a1, 4
