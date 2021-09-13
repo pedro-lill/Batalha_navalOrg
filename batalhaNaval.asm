@@ -15,11 +15,12 @@
     # gerando uma mensagem de erro para as seguintes situa??es:
     #     
     .data
-navios: .string     "3 1 8 11 1 0 5 2 2 0 4 6 4 "
+navios: .string     "3 1 8 1 1 0 5 2 2 0 4 6 4 "
 br_n: .string       "\n"
 msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
 msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
 msgPosLin:     .string     "A posicao do navio eh invalida (linha)"
+msgSobrepos:     .string     "Ocorre sobreposicao nos navios"
 
 matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
@@ -41,7 +42,7 @@ insere_embarcacoes:
     li t3, 0            # carrega 0 em t3
     li t5, 4            # carrega 4 em t5
     li t6, 10           # carrega 10 em t6
-    li s7, 32		# carrega espa�o em s7
+    li s7, 32		# carrega espaco em s7
 
     addi s9, zero, 1             # contador de navios
     
@@ -90,7 +91,10 @@ insere_embarcacoes:
         teste_2:
             beq s1, zero, incremento_1		# s8-> count_comprimento. s1 comprimento
         corpo_2:
+        	    lb t1, 0(s10)
+            bne t1, t3, msg_sobrepos
             sw s9, (s10)
+            
         incremento_2:       
             addi s1, s1, -1	
             beq s0, t3, horizontal		# se s0 = 0 entao ? horizontal
@@ -112,20 +116,26 @@ insere_embarcacoes:
         end_1:
             ret
         msg_cpm:
-        		la a0, msgCpm
-        		li a7, 4
-        		ecall
-        		j fim
+            la a0, msgCpm
+            li a7, 4
+            ecall
+            j fim
         msg_posCol:
-        		la a0, msgPosCol
-        		li a7, 4
-        		ecall
-        		j fim
+            la a0, msgPosCol
+            li a7, 4
+            ecall
+            j fim
         msg_posLin:
-		        la a0, msgPosLin
-        		li a7, 4
-        		ecall
-        		j fim
+            la a0, msgPosLin
+            li a7, 4
+            ecall
+            j fim
+        msg_sobrepos:
+            la a0, msgSobrepos
+            li a7, 4
+            ecall
+            j fim
+
 
 
 printa_matriz:  # peguei essa fun??o do alex
