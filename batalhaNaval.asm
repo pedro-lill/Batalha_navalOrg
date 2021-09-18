@@ -15,12 +15,22 @@
     # gerando uma mensagem de erro para as seguintes situa??es:
     #     
     .data
-navios: .string     "3 1 8 1 1 0 5 2 2 0 4 6 4 "
+navios: .string     "3 1 1 1 1 0 5 2 2 0 4 6 4 "
 br_n: .string       "\n"
 msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
 msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
 msgPosLin:     .string     "A posicao do navio eh invalida (linha)"
 msgSobrepos:     .string     "Ocorre sobreposicao nos navios"
+interativo:     .string     "\n Escolha uma das opcoes: \n 0-reiniciar o jogo \n 1-estado atual da matriz de navios \n 2-fazer uma nova jogada \n "
+recorde:        .string     "\n --------- Recorde --------- \n"
+recTiro:        .string     "Tiros : \n"
+recAcertos:        .string     "Acertos : \n"
+recAfundados:        .string     "Afundados : \n"
+voce:           .string         "\n --------- Voce --------- \n"
+vcTiros:        .string     "Tiros : \n"
+vcAcertos:        .string     "Acertos : \n"
+vcAfundados:        .string     "Afundados : \n"
+vcUltimo:       .string         "Ultimo tiro : \n"
 
 matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
@@ -30,9 +40,13 @@ space:	.string		" "
 main:
     # jal identifica_qtd      # jal para identifica_qtd
     # add s0, zero, s0
+    jal tela_inicial
     jal insere_embarcacoes
     jal printa_matriz
+    
     jal fim
+
+
 
 insere_embarcacoes:
     la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
@@ -66,18 +80,18 @@ insere_embarcacoes:
         addi s1, s1, -48
         
 
-        addi a0, a0, 3          # eu ando at� a posicao depois do numero (que deveria ser um espaco)     
+        addi a0, a0, 3          # eu ando at? a posicao depois do numero (que deveria ser um espaco)     
         # addi a0, a0, 1	
         lb s5, (a0)             # salvo em um reg temp
-        bne s5, s7, msg_posLin  # teste se ela � diferente de espa�o
+        bne s5, s7, msg_posLin  # teste se ela ? diferente de espa?o
         addi a0, a0, -1		    # volto para a posicao que tem o numero
         lb s2, (a0)		        # salvo em s2
         addi s2, s2, -48        # transformo em int
 
-        addi a0, a0, 3          # eu ando at� a posicao depois do numero (que deveria ser um espaco)         
+        addi a0, a0, 3          # eu ando at? a posicao depois do numero (que deveria ser um espaco)         
         # addi a0, a0, 1        	
         lb s6, (a0)             # salvo em um reg temp
-        bne s6, s7, msg_posCol  # teste se ela � diferente de espa�o
+        bne s6, s7, msg_posCol  # teste se ela ? diferente de espa?o
         addi a0, a0, -1         # volto para a posicao que tem o numero		
         lb s3, (a0)             # salvo em s3		   
         addi s3, s3, -48        # transformo em int
@@ -91,9 +105,9 @@ insere_embarcacoes:
         teste_2:
             beq s1, zero, incremento_1		# s8-> count_comprimento. s1 comprimento
         corpo_2:
-        	    lb t1, 0(s10)
-            bne t1, t3, msg_sobrepos
-            sw s9, (s10)
+        	lb t1, 0(s10)                   # ponteiro em t1 para s10
+            bne t1, t3, msg_sobrepos        # se a posicao atual for diferente de 0 -> msg_sobrepos
+            sw s9, (s10)                    # salva o numero da embarcacao atual na matriz
             
         incremento_2:       
             addi s1, s1, -1	
@@ -106,7 +120,7 @@ insere_embarcacoes:
                 # add ra, zero, s5
                 j teste_2
             vertical:
-                addi s10, s10, 40
+                addi s10, s10, 40           # add 40 para andar 10 pos na matriz
                 j teste_2
        incremento_1:
             addi s9, s9, 1
@@ -115,6 +129,9 @@ insere_embarcacoes:
      
         end_1:
             ret
+        
+
+# mensagens de erro do programa
         msg_cpm:
             la a0, msgCpm
             li a7, 4
@@ -136,9 +153,13 @@ insere_embarcacoes:
             ecall
             j fim
 
+jogar:
+    tiro:
 
 
-printa_matriz:  # peguei essa fun??o do alex
+
+
+printa_matriz:  # peguei essa funcao do alex
     add t0, zero, zero # quando chegar em 100, termina
     addi t1, zero, 100 
     add t2, zero, zero # a cada 10, um \n
@@ -167,7 +188,15 @@ printa_matriz:  # peguei essa fun??o do alex
         j teste_condicao_prin
     fim_prin:
         ret
-	
-    
+
+tela_inicial:
+    display_interatio:
+            la a0, interativo
+            li a7, 4
+            ecall
+        endII:
+            ret    
+
+
 fim:
     nop
