@@ -15,7 +15,7 @@
     # gerando uma mensagem de erro para as seguintes situa??es:
     #     
     .data
-navios: .string     "3 1 1 1 1 0 5 2 2 0 4 6 4 "
+navios: .string     "3 1 5 5 1 0 5 2 2 0 1 6 4 "
 br_n: .string       "\n"
 msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
 msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
@@ -57,6 +57,7 @@ insere_embarcacoes:
     li t3, 0            # carrega 0 em t3
     li t5, 4            # carrega 4 em t5
     li t6, 10           # carrega 10 em t6
+    li t0, 11		# carrega 11 em t0
     li s7, 32		# carrega espaco em s7
 
     addi s9, zero, 1             # contador de navios
@@ -68,10 +69,12 @@ insere_embarcacoes:
     corpo_1:
         la s10, matriz      # carrega matriz em s10
         
+        # horizontal ou vertical
         addi a0, a0, 2      # horizontal[0] ou vertical[1]
         lb s0, (a0)         # direcao em s0
         addi s0, s0, -48    # transforma a string em inteiro(ascii)
  
+ 	# comprimento
         addi a0, a0, 3      	# numero 3(4) da string
         # addi a0, a0, 1		# ando uma casa em a0 e guardo em s8
         lb s4, (a0)
@@ -80,20 +83,30 @@ insere_embarcacoes:
         lb s1, (a0)		        # salvo a pos de a0 em s1
         addi s1, s1, -48
         
-
+	# linha inicial
         addi a0, a0, 3          # eu ando ate a posicao depois do numero (que deveria ser um espaco)  	
         lb s5, (a0)             # salvo em um reg temp
         bne s5, s7, msg_posLin  # teste se ela ? diferente de espa?o
         addi a0, a0, -1		    # volto para a posicao que tem o numero
         lb s2, (a0)		        # salvo em s2
         addi s2, s2, -48        # transformo em int
+        
+        # teste sobrepos coluna
+        add a4, s2, s1
+        bge a4, t0, msg_posCol
+        
 
+	# coluna inicial
         addi a0, a0, 3          # eu ando at? a posicao depois do numero (que deveria ser um espaco)             	
         lb s6, (a0)             # salvo em um reg temp
         bne s6, s7, msg_posCol  # teste se ela ? diferente de espa?o
         addi a0, a0, -1         # volto para a posicao que tem o numero		
         lb s3, (a0)             # salvo em s3		   
         addi s3, s3, -48        # transformo em int
+        
+        # teste sobrepos linha
+        add a3, s3, s1
+        bge a3, t0, msg_posLin
 
         # (L * QTD_colunas + C) * 4
         mul s11, s2, t6      # l *qtd colunas
@@ -219,8 +232,8 @@ tela_inicial:
             li a7, 11
             ecall
             
-         	la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
-    		lb t4, 0(a0)
+            la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
+	    lb t4, 0(a0)
             lb s0, (a0)     
             addi s0, s0, -48        # linha
 
