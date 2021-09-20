@@ -21,7 +21,8 @@ msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
 msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
 msgPosLin:     .string     "A posicao do navio eh invalida (linha)"
 msgSobrepos:     .string     "Ocorre sobreposicao nos navios"
-interativo:     .string     "\n Escolha uma das opcoes: \n 0-reiniciar o jogo \n 1-estado atual da matriz de navios \n 2-fazer uma nova jogada \n "
+interativo:     .string     "\n Escolha uma das opcoes: \n 0-reiniciar o jogo \n 1-estado atual da matriz de navios \n 2-fazer uma nova jogada \n\n "
+atirando:       .string     "\n Escolha em que posicao ira atirar: \n linha<->coluna \n"
 recorde:        .string     "\n --------- Recorde --------- \n"
 recTiro:        .string     "Tiros : \n"
 recAcertos:        .string     "Acertos : \n"
@@ -80,16 +81,14 @@ insere_embarcacoes:
         addi s1, s1, -48
         
 
-        addi a0, a0, 3          # eu ando at? a posicao depois do numero (que deveria ser um espaco)     
-        # addi a0, a0, 1	
+        addi a0, a0, 3          # eu ando ate a posicao depois do numero (que deveria ser um espaco)  	
         lb s5, (a0)             # salvo em um reg temp
         bne s5, s7, msg_posLin  # teste se ela ? diferente de espa?o
         addi a0, a0, -1		    # volto para a posicao que tem o numero
         lb s2, (a0)		        # salvo em s2
         addi s2, s2, -48        # transformo em int
 
-        addi a0, a0, 3          # eu ando at? a posicao depois do numero (que deveria ser um espaco)         
-        # addi a0, a0, 1        	
+        addi a0, a0, 3          # eu ando at? a posicao depois do numero (que deveria ser um espaco)             	
         lb s6, (a0)             # salvo em um reg temp
         bne s6, s7, msg_posCol  # teste se ela ? diferente de espa?o
         addi a0, a0, -1         # volto para a posicao que tem o numero		
@@ -110,8 +109,8 @@ insere_embarcacoes:
             sw s9, (s10)                    # salva o numero da embarcacao atual na matriz
             
         incremento_2:       
-            addi s1, s1, -1	
-            beq s0, t3, horizontal		# se s0 = 0 entao ? horizontal
+            addi s1, s1, -1             # decremento um no comprimento
+            beq s0, t3, horizontal		# se s0 = 0 entao eh horizontal
             j vertical				# se nao ? vertical
             horizontal:
                 addi s10, s10, 4			# add o n barco de 4 em 4 pos
@@ -123,15 +122,12 @@ insere_embarcacoes:
                 addi s10, s10, 40           # add 40 para andar 10 pos na matriz
                 j teste_2
        incremento_1:
-            addi s9, s9, 1
-            addi t4, t4, -1 
+            addi s9, s9, 1                  # incremento 1 em s9(numero da embarca??o)
+            addi t4, t4, -1                 # decremento 1 em t4 (numero de navios)
             j teste_1
-     
         end_1:
             ret
-        
-
-# mensagens de erro do programa
+        # mensagens de erro do programa
         msg_cpm:
             la a0, msgCpm
             li a7, 4
@@ -190,10 +186,56 @@ printa_matriz:  # peguei essa funcao do alex
         ret
 
 tela_inicial:
+    la s10, matriz
+    li t0, 0
+    li t1, 1
+    li t2, 2
+    li t3, 0
+    li t5, 4
+    li t6, 10 
     display_interatio:
-            la a0, interativo
+        la a0, interativo
+        li a7, 4
+        ecall
+        li a7, 5
+        ecall
+        teste_tela1:
+            beq a0, t0, reiniciar
+            beq a0, t1, estAtual
+            beq a0, t2, atirar
+        reiniciar:
+            
+        estAtual:
+            
+
+        atirar:
+            la a0, atirando
             li a7, 4
             ecall
+            li a1, 4
+            li a7, 8
+            ecall
+            li a0, 10
+            li a7, 11
+            ecall
+            
+         	la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
+    		lb t4, 0(a0)
+            lb s0, (a0)     
+            addi s0, s0, -48        # linha
+
+            addi a0, a0, 2  
+            lb s1, (a0)     
+            addi s1, s1, -48        # coluna
+
+            # (L * QTD_colunas + C) * 4
+            mul s11, s0, t6      # l *qtd colunas
+            add s11, s11, s1     # l *qtd colunas + C
+            mul s11, s11, t5     # (l *qtd colunas + C) * 4 
+            add s10, s10, s11       # s10 esta com a pos atual na matriz
+
+
+
         endII:
             ret    
 
