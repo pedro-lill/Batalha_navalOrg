@@ -15,34 +15,38 @@
     # gerando uma mensagem de erro para as seguintes situa??es:
     #     
     .data
-navios: .string     "3 1 5 5 1 0 5 2 2 0 1 6 4 "
+matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+navios: .string     "3 1 5 1 1 0 5 2 2 0 1 6 4 "
 br_n: .string       "\n"
+digLinha: .string	"digite a linha: \n"
+digColuna: .string	"digite a coluna: \n"
 msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
 msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
 msgPosLin:     .string     "A posicao do navio eh invalida (linha)"
 msgSobrepos:     .string     "Ocorre sobreposicao nos navios"
-interativo:     .string     "\n Escolha uma das opcoes: \n 0-reiniciar o jogo \n 1-estado atual da matriz de navios \n 2-fazer uma nova jogada \n\n "
-atirando:       .string     "\n Escolha em que posicao ira atirar: \n linha<->coluna \n"
+interativo:     .string     "\n Escolha uma das opcoes: \n 0-reiniciar o jogo \n 1-estado atual da matriz de navios \n 2-fazer uma nova jogada \n "
+# atirando:       .string     "\n Escolha em que posicao ira atirar:\n"
 recorde:        .string     "\n --------- Recorde --------- \n"
 recTiro:        .string     "Tiros : \n"
 recAcertos:        .string     "Acertos : \n"
 recAfundados:        .string     "Afundados : \n"
 voce:           .string         "\n --------- Voce --------- \n"
-vcTiros:        .string     "Tiros : \n"
-vcAcertos:        .string     "Acertos : \n"
+vcTiros:        .string     "\n Tiros : \n"
+vcAcertos:        .string     "\n Voce acertou!! \n"
+vcErros:		.string		"Voce errou!! \n"
 vcAfundados:        .string     "Afundados : \n"
 vcUltimo:       .string         "Ultimo tiro : \n"
 
-matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-
+# matrizJogo:     .word     O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O
 space:	.string		" "
    .text
 
 main:
     # jal identifica_qtd      # jal para identifica_qtd
     # add s0, zero, s0
-    jal tela_inicial
+    # O = 79 (ascii)
     jal insere_embarcacoes
+    jal tela_inicial
     jal printa_matriz
     
     jal fim
@@ -92,8 +96,8 @@ insere_embarcacoes:
         addi s2, s2, -48        # transformo em int
         
         # teste sobrepos coluna
-        add a4, s2, s1
-        bge a4, t0, msg_posCol
+        add a4, s2, s1		# comprimento+linha inicial
+        bge a4, t0, msg_posCol	# verifica se eh >= 11
         
 
 	# coluna inicial
@@ -105,8 +109,8 @@ insere_embarcacoes:
         addi s3, s3, -48        # transformo em int
         
         # teste sobrepos linha
-        add a3, s3, s1
-        bge a3, t0, msg_posLin
+        add a3, s3, s1		# comprimento+coluna inicial
+        bge a3, t0, msg_posLin	# verifica seeh >= 11
 
         # (L * QTD_colunas + C) * 4
         mul s11, s2, t6      # l *qtd colunas
@@ -117,7 +121,7 @@ insere_embarcacoes:
         teste_2:
             beq s1, zero, incremento_1		# s8-> count_comprimento. s1 comprimento
         corpo_2:
-        	lb t1, 0(s10)                   # ponteiro em t1 para s10
+        	    lb t1, 0(s10)                   # ponteiro em t1 para s10
             bne t1, t3, msg_sobrepos        # se a posicao atual for diferente de 0 -> msg_sobrepos
             sw s9, (s10)                    # salva o numero da embarcacao atual na matriz
             
@@ -126,7 +130,7 @@ insere_embarcacoes:
             beq s0, t3, horizontal		# se s0 = 0 entao eh horizontal
             j vertical				# se nao ? vertical
             horizontal:
-                addi s10, s10, 4			# add o n barco de 4 em 4 pos
+                addi s10, s10, 4			# add o numero do barco de 4 em 4 pos
                 # add s5, zero, ra
                 # jal funcao
                 # add ra, zero, s5
@@ -199,57 +203,78 @@ printa_matriz:  # peguei essa funcao do alex
         ret
 
 tela_inicial:
-    la s10, matriz
+    la s10, matriz      # carrego a matriz em s10
+    # load immediate em valores usados posteriormente
     li t0, 0
     li t1, 1
     li t2, 2
     li t3, 0
+    li s4, 3
     li t5, 4
-    li t6, 10 
-    display_interatio:
-        la a0, interativo
-        li a7, 4
+    li t6, 10
+    add s1, zero, zero
+    add s2, zero, zero
+    display_interativo:
+        la a0, interativo       # chamada do display
+        li a7, 4                # 4 -> printstring
         ecall
-        li a7, 5
+        li a7, 5                # 5-> readInt
         ecall
         teste_tela1:
-            beq a0, t0, reiniciar
+            # testes do valor escrito pelo usuario
+            beq a0, t0, reiniciar       
             beq a0, t1, estAtual
             beq a0, t2, atirar
+            bge a0, s4, display_interativo  # teste 
         reiniciar:
+            add s10, zero, zero
+            jal tela_inicial
             
         estAtual:
-            
-
+        		jal printa_matriz
+        		
         atirar:
-            la a0, atirando
-            li a7, 4
-            ecall
-            li a1, 4
-            li a7, 8
-            ecall
-            li a0, 10
-            li a7, 11
-            ecall
-            
-            la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
-	    lb t4, 0(a0)
-            lb s0, (a0)     
-            addi s0, s0, -48        # linha
+        	    la s10, matriz
 
-            addi a0, a0, 2  
-            lb s1, (a0)     
-            addi s1, s1, -48        # coluna
+            la a0, digLinha
+            li a7, 4
+            ecall 
+           li a7, 5                # 5-> readInt
+	   ecall
+	   sb s1, (a0) 
+            # li a0, 10           # usado para dar \n
+            # li a7, 11           # \n ascii
+            # ecall
+            la a0, digColuna
+            li a7, 4
+            ecall 
+           li a7, 5                # 5-> readInt
+	   ecall
+	   sw s2, (a0) 
+            
 
             # (L * QTD_colunas + C) * 4
-            mul s11, s0, t6      # l *qtd colunas
-            add s11, s11, s1     # l *qtd colunas + C
+            mul s11, s1, t6      # l *qtd colunas
+            add s11, s11, s2     # l *qtd colunas + C
             mul s11, s11, t5     # (l *qtd colunas + C) * 4 
             add s10, s10, s11       # s10 esta com a pos atual na matriz
-
-
-
-        endII:
+            
+	testeTiro:
+            bne s5, t0, acertou		# se s5 diferente de t0
+            beq s5, t0, errou		# se s5 = t0
+            
+	acertou:
+		la a0, vcAcertos
+		li a7, 4
+		ecall
+		j tela_inicial
+	errou:
+        		la a0, vcErros
+		li a7, 4
+		ecall
+		j tela_inicial	
+		
+	endII:
             ret    
 
 
