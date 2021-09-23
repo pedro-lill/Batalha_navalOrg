@@ -199,6 +199,53 @@ printa_matriz:  #  funcao do alex
     fim_prin:
         ret
 
+printa_matriz_pronta:
+	add t0, zero, zero
+	addi t1, zero, 100
+	add t2, zero, zero # a cada 10, um \n
+    	addi t3, zero, 10
+    	add s6, zero, zero
+    	addi s7, zero, 1
+    	la s10, matriz
+    teste_condicao_prin_pronta:
+        beq t0, t1, fim_prin_pronta
+        beq t2, t3, pula_prin_pronta
+        j corpo_laco_prin_pronta
+    pula_prin_pronta:
+       	add t2, zero, zero
+        li a0, 10
+        li a7, 11
+        ecall
+    corpo_laco_prin_pronta:
+    	# addi a0, a0, -12
+    	addi s5, s5, 10
+    	sw s5, (s10)
+    	lw s5, (s10)
+    	
+    	blt a0, t3, printa_trac		# 193
+    	beq a0, t3, printa_o
+    printa_navio:
+    	lw s5, (s10)
+        li a7, 1
+        ecall
+    printa_trac:
+    	li a0, 193
+    	li a7, 11
+    	j incremento_controle_prin_pronta
+    printa_o:
+    	li a0, 193
+    	li a7, 11
+    	j incremento_controle_prin_pronta
+    	
+    incremento_controle_prin_pronta:
+        addi a1, a1, 4
+        addi t0, t0, 1
+        addi t2, t2, 1
+        j teste_condicao_prin_pronta
+    fim_prin_pronta:
+        ret
+
+
 printa_matriz_arroba:  # peguei essa funcao do alex
     add t0, zero, zero # quando chegar em 100, termina
     addi t1, zero, 100 
@@ -226,19 +273,20 @@ printa_matriz_arroba:  # peguei essa funcao do alex
 	add s6, zero, zero
     corpo_laco_prin_arroba:
     	
-    	bne s5, t4, printAcerto
-    	beq s5, t4, printErro
+    	bne s5, zero, printAcerto
+    	beq s5, zero, printErro
     	# addi a0, a0, -12
     	
 	
         printAcerto:
-        		# addi t6, t6, 1
+        		addi t6, t6, 1
         		lw a0, (a1)
         		li a7, 1
         		ecall
         		li a0, 32       # 32 = space (tabela ascii)
         		li a7, 11       # 11 = \n (tabela ascii)
         		ecall
+        		beq t6, t5, incremento_controle_prin_arroba
         		
         printErro:
         
@@ -264,36 +312,7 @@ printa_matriz_arroba:  # peguei essa funcao do alex
         j teste_condicao_prin_arroba
     fim_prin_arroba:
         ret
-        
-printa_matriz_jogo:  # peguei essa funcao do alex
-    add t0, zero, zero # quando chegar em 100, termina
-    addi t1, zero, 100 
-    add t2, zero, zero # a cada 10, um \n
-    addi t3, zero, 10
-    la a1, matriz_jogo
-    teste_condicao_prin_jogo:
-        beq t0, t1, fim_prin_jogo
-        beq t2, t3, pula_prin_jogo
-        j corpo_laco_prin_jogo
-    pula_prin_jogo:
-        add t2, zero, zero
-        li a0, 10
-        li a7, 11
-        ecall
-    corpo_laco_prin_jogo:
-        lw a0, (a1)
-        li a7, 1
-        ecall
-        li a0, 32       # 32 = space (tabela ascii)
-        li a7, 11       # 11 = \n (tabela ascii)
-        ecall
-    incremento_controle_prin_jogo:
-        addi a1, a1, 4
-        addi t0, t0, 1
-        addi t2, t2, 1
-        j teste_condicao_prin_jogo
-    fim_prin_jogo:
-        ret
+
 
 tela_inicial:
     la s10, matriz      # carrego a matriz em s10
@@ -362,13 +381,13 @@ tela_inicial:
 		la a0, vcAcertos
 		li a7, 4
 		ecall
-       		jal printa_matriz_arroba
+       		jal printa_matriz_pronta
 		j tela_inicial
 	errou:
         		la a0, vcErros
 		li a7, 4
 		ecall
-        		jal printa_matriz_arroba
+        		jal printa_matriz_pronta
 		j tela_inicial	
 		
 	endII:
