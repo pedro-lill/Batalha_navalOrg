@@ -16,15 +16,16 @@
     #     
     .data
 matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+matriz_jogo:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 navios: .string     "3 1 5 1 1 0 5 2 2 0 1 6 4 "
 br_n: .string       "\n"
-digLinha: .string	"digite a linha: \n"
-digColuna: .string	"digite a coluna: \n"
+digLinha: .string	"\n Digite a linha: \n"
+digColuna: .string	"Digite a coluna: \n"
 msgCpm:    .string     "O navio extrapola as dimensoes da matriz"
 msgPosCol:     .string     "A posicao do navio eh invalida (coluna)"
 msgPosLin:     .string     "A posicao do navio eh invalida (linha)"
 msgSobrepos:     .string     "Ocorre sobreposicao nos navios"
-interativo:     .string     "\n Escolha uma das opcoes: \n 0-reiniciar o jogo \n 1-estado atual da matriz de navios \n 2-fazer uma nova jogada \n "
+interativo:     .string     "\n\n Escolha uma das opcoes: \n 0-reiniciar o jogo \n 1-estado atual da matriz de navios \n 2-fazer uma nova jogada \n "
 # atirando:       .string     "\n Escolha em que posicao ira atirar:\n"
 recorde:        .string     "\n --------- Recorde --------- \n"
 recTiro:        .string     "Tiros : \n"
@@ -166,11 +167,6 @@ insere_embarcacoes:
             ecall
             j fim
 
-jogar:
-    tiro:
-
-
-
 
 printa_matriz:  # peguei essa funcao do alex
     add t0, zero, zero # quando chegar em 100, termina
@@ -201,6 +197,36 @@ printa_matriz:  # peguei essa funcao do alex
         j teste_condicao_prin
     fim_prin:
         ret
+        
+printa_matriz_jogo:  # peguei essa funcao do alex
+    add t0, zero, zero # quando chegar em 100, termina
+    addi t1, zero, 100 
+    add t2, zero, zero # a cada 10, um \n
+    addi t3, zero, 10
+    la a1, matriz_jogo
+    teste_condicao_prin_jogo:
+        beq t0, t1, fim_prin_jogo
+        beq t2, t3, pula_prin_jogo
+        j corpo_laco_prin_jogo
+    pula_prin_jogo:
+        add t2, zero, zero
+        li a0, 10
+        li a7, 11
+        ecall
+    corpo_laco_prin_jogo:
+        lw a0, (a1)
+        li a7, 1
+        ecall
+        li a0, 32       # 32 = space (tabela ascii)
+        li a7, 11       # 11 = \n (tabela ascii)
+        ecall
+    incremento_controle_prin_jogo:
+        addi a1, a1, 4
+        addi t0, t0, 1
+        addi t2, t2, 1
+        j teste_condicao_prin_jogo
+    fim_prin_jogo:
+        ret
 
 tela_inicial:
     la s10, matriz      # carrego a matriz em s10
@@ -212,8 +238,8 @@ tela_inicial:
     li s4, 3
     li t5, 4
     li t6, 10
-    add s1, zero, zero
-    add s2, zero, zero
+    add s1, zero, zero		# zero o s1, e uso para linha
+    add s2, zero, zero		# zero o s2, e uso para coluna
     display_interativo:
         la a0, interativo       # chamada do display
         li a7, 4                # 4 -> printstring
@@ -232,46 +258,50 @@ tela_inicial:
             
         estAtual:
         		jal printa_matriz
+        		j tela_inicial
         		
         atirar:
-        	    la s10, matriz
+            la s10, matriz
 
             la a0, digLinha
             li a7, 4
             ecall 
-           li a7, 5                # 5-> readInt
-	   ecall
-	   sb s1, (a0) 
-            # li a0, 10           # usado para dar \n
-            # li a7, 11           # \n ascii
-            # ecall
+            li a7, 5                # 5-> readInt
+            ecall
+            add s1, a0, zero 
+                # li a0, 10           # usado para dar \n
+                # li a7, 11           # \n ascii
+                # ecall
             la a0, digColuna
             li a7, 4
             ecall 
-           li a7, 5                # 5-> readInt
-	   ecall
-	   sw s2, (a0) 
-            
+            li a7, 5                # 5-> readInt
+            ecall
+            add s2, a0, zero 
+                
 
-            # (L * QTD_colunas + C) * 4
+                # (L * QTD_colunas + C) * 4
             mul s11, s1, t6      # l *qtd colunas
             add s11, s11, s2     # l *qtd colunas + C
             mul s11, s11, t5     # (l *qtd colunas + C) * 4 
             add s10, s10, s11       # s10 esta com a pos atual na matriz
+            lb s5, 0(s10)		# ponteiro s5 para a posicao atual da matriz carregando o byte
             
 	testeTiro:
-            bne s5, t0, acertou		# se s5 diferente de t0
-            beq s5, t0, errou		# se s5 = t0
+        		bne s5, t0, acertou		# comparo o byte da matriz com 0(t0), se for diferente = acertei
+        		beq s5, t0, errou		# se s5 = t0, errei
             
 	acertou:
 		la a0, vcAcertos
 		li a7, 4
 		ecall
+       		jal printa_matriz_jogo
 		j tela_inicial
 	errou:
-        		la a0, vcErros
+        la a0, vcErros
 		li a7, 4
 		ecall
+        		jal printa_matriz_jogo
 		j tela_inicial	
 		
 	endII:
