@@ -17,7 +17,7 @@
     .data
 matriz:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 matriz_jogo:     .word     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-navios: .string     "3 1 5 1 1 0 5 2 2 0 1 6 4 "
+navios: .string     "3 1 5 0 0 0 5 2 2 0 1 6 4 "
 br_n: .string       "\n"
 digLinha: .string	"\n Digite a linha: \n"
 digColuna: .string	"Digite a coluna: \n"
@@ -199,6 +199,8 @@ printa_matriz:  #  funcao do alex
     fim_prin:
         ret
 
+
+
 printa_matriz_pronta:
 	add t0, zero, zero
 	addi t1, zero, 100
@@ -206,7 +208,8 @@ printa_matriz_pronta:
     	addi t3, zero, 10
     	add s6, zero, zero
     	addi s7, zero, 1
-    	la s10, matriz
+    	la a1, matriz
+    	la a2, matriz_jogo
     teste_condicao_prin_pronta:
         beq t0, t1, fim_prin_pronta
         beq t2, t3, pula_prin_pronta
@@ -217,101 +220,48 @@ printa_matriz_pronta:
         li a7, 11
         ecall
     corpo_laco_prin_pronta:
-    	# addi a0, a0, -12
-    	addi s5, s5, 10
-    	sw s5, (s10)
-    	lw s5, (s10)
-    	
-    	blt a0, t3, printa_trac		# 193
-    	beq a0, t3, printa_o
-    printa_navio:
-    	lw s5, (s10)
-        li a7, 1
-        ecall
-    printa_trac:
-    	li a0, 193
-    	li a7, 11
-    	j incremento_controle_prin_pronta
-    printa_o:
-    	li a0, 193
-    	li a7, 11
-    	j incremento_controle_prin_pronta
+    	beq s10, a1, loop_pronta		# se a pos s5 for igual a s10
+    	printa_trac:
+    		li a0, 64
+    		li a7, 11
+    		ecall
+    		li a0, 32       # 32 = space (tabela ascii)
+        		li a7, 11       # 11 = \n (tabela ascii)
+        		ecall
+    		j incremento_controle_prin_pronta
+    	loop_pronta:		# teste entre a word s5 e 10
+    		blt t3, s5 printa_navio		# maior i=ou igual 10.     193
+    		beq s5, t3, printa_x
+    		printa_navio:
+    			sw a0, (a2)
+    			lw a0, (a1)
+        			li a7, 1
+        			ecall
+        			li a0, 32       # 32 = space (tabela ascii)
+        			li a7, 11       # 11 = \n (tabela ascii)
+        			ecall
+        			j incremento_controle_prin_pronta
+    		printa_x:
+    			sw a0, (a2)
+    			li a0, 88
+    			li a7, 11
+    			ecall
+    			li a0, 32       # 32 = space (tabela ascii)
+        			li a7, 11       # 11 = \n (tabela ascii)
+        			ecall
+    			j incremento_controle_prin_pronta
     	
     incremento_controle_prin_pronta:
         addi a1, a1, 4
         addi t0, t0, 1
         addi t2, t2, 1
+        addi s6, s6, 1
         j teste_condicao_prin_pronta
     fim_prin_pronta:
         ret
 
 
-printa_matriz_arroba:  # peguei essa funcao do alex
-    add t0, zero, zero # quando chegar em 100, termina
-    addi t1, zero, 100 
-    add t2, zero, zero # a cada 10, um \n
-    addi t3, zero, 10
-    add s6, zero, zero
-    addi s7, zero, 1
-    li t4, 0
-    li t5, 1
-    add t6, zero, zero
-    la a1, matriz
-    teste_condicao_prin_arroba:
-        beq t0, t1, fim_prin_arroba
-        beq t2, t3, pula_prin_arroba
-        beq s6, s7, pulaOne
-        j corpo_laco_prin_arroba
-   
-    pula_prin_arroba:
-        add t2, zero, zero
-        
-        li a0, 10
-        li a7, 11
-        ecall
-    pulaOne:
-	add s6, zero, zero
-    corpo_laco_prin_arroba:
-    	
-    	bne s5, zero, printAcerto
-    	beq s5, zero, printErro
-    	# addi a0, a0, -12
-    	
-	
-        printAcerto:
-        		addi t6, t6, 1
-        		lw a0, (a1)
-        		li a7, 1
-        		ecall
-        		li a0, 32       # 32 = space (tabela ascii)
-        		li a7, 11       # 11 = \n (tabela ascii)
-        		ecall
-        		beq t6, t5, incremento_controle_prin_arroba
-        		
-        printErro:
-        
-	        li a0, 64		# arroba
-	        li a7, 11
-	        ecall
-	        li a0, 32       # 32 = space (tabela ascii)
-	        li a7, 11       # 11 = \n (tabela ascii)
-	        ecall
-        	#	li a0, 120
-        #		li a7, 11
-        #		ecall
-        #		li a0, 32       # 32 = space (tabela ascii)
-        #		li a7, 11       # 11 = \n (tabela ascii)
-        #		ecall	
-        		
-        
-    incremento_controle_prin_arroba:
-        addi a1, a1, 4
-        addi s6, s6, 1
-        addi t0, t0, 1
-        addi t2, t2, 1
-        j teste_condicao_prin_arroba
-    fim_prin_arroba:
-        ret
+
 
 
 tela_inicial:
@@ -381,12 +331,16 @@ tela_inicial:
 		la a0, vcAcertos
 		li a7, 4
 		ecall
+		addi s5, s5, 10
+    		sw s5, (s10)
        		jal printa_matriz_pronta
 		j tela_inicial
 	errou:
         		la a0, vcErros
 		li a7, 4
 		ecall
+		addi s5, s5, 10
+    		sw s5, (s10)
         		jal printa_matriz_pronta
 		j tela_inicial	
 		
