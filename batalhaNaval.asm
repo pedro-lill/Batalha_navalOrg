@@ -209,7 +209,8 @@ printa_matriz_pronta:
     	add s6, zero, zero
     	addi s7, zero, 1
     	la a1, matriz
-    	la a2, matriz_jogo
+    	la a0, recorde      
+     
     teste_condicao_prin_pronta:
         beq t0, t1, fim_prin_pronta
         beq t2, t3, pula_prin_pronta
@@ -233,7 +234,6 @@ printa_matriz_pronta:
     		blt t3, s5 printa_navio		# maior i=ou igual 10.     193
     		beq s5, t3, printa_x
     		printa_navio:
-    			sw a0, (a2)
     			lw a0, (a1)
         			li a7, 1
         			ecall
@@ -242,7 +242,6 @@ printa_matriz_pronta:
         			ecall
         			j incremento_controle_prin_pronta
     		printa_x:
-    			sw a0, (a2)
     			li a0, 88
     			li a7, 11
     			ecall
@@ -274,6 +273,7 @@ tela_inicial:
     li s4, 3
     li t5, 4
     li t6, 10
+    li s7, 0
     add s1, zero, zero		# zero o s1, e uso para linha
     add s2, zero, zero		# zero o s2, e uso para coluna
     display_interativo:
@@ -333,6 +333,7 @@ tela_inicial:
 		ecall
 		addi s5, s5, 10
     		sw s5, (s10)
+    		addi s7, s7, 1
        		jal printa_matriz_pronta
 		j tela_inicial
 	errou:
