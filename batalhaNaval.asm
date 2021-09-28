@@ -55,6 +55,9 @@ main:
 
 
 insere_embarcacoes:
+	# a insere_embarcacoes faz a leitura da string navios. de forma semantica ela envia os numeros para o devido lugar 
+	# e insere as embarcacoes de forma correta na matriz
+	# sao feitos testes de sobreposicao, e de extrapolar a matriz
     la a0, navios           # carrega navio em a0  -> navios: .string     "3 (1 5 1 1) 0 5 2 2 0 1 6 4"
     lb t4, 0(a0)            # carrega navios em t4
     addi t4, t4, -48       # a0/t4 => 3              cod ascci 0/ trasnformar a string 3 em int 3
@@ -167,8 +170,9 @@ insere_embarcacoes:
             ecall
             j fim
 
-
 printa_matriz:  #  funcao do alex
+	# o printa matriz tem um loop de 10 em 10 e de 100 em 100
+	# e printa de uma em uma no formato de matriz 10x10
     add t0, zero, zero # quando chegar em 100, termina
     addi t1, zero, 100 
     add t2, zero, zero # a cada 10, um \n
@@ -199,9 +203,17 @@ printa_matriz:  #  funcao do alex
     fim_prin:
         ret
 
-
-
+	
 printa_matriz_pronta:
+	# a printa matriz eh a matriz interativa do jogo, nela verificamos o valor na matriz e substituimos de acordo
+	# se s5 = 0 => @(arroba), se s5=10=>x, se s5>10=>valor da matriz
+	# ainda temos um bug(ou melhor, um erro), só printamos a matriz interativa com o tiro atual
+	# ou seja ela mostra muitos @(arrobas) e um x ou o valor inserido na matriz
+	# acredito que um dos testes nao esta feito corretamente, e tambem acredito que deveriamos fazer menos
+	# comparacoes dentro dessa funcao.Alguns dos testes e valores deveriam estar prontos e apenas serem processados aqui
+	# Infelizmente nao conseguimos resolver isso
+	# atualmente o teste feito eh somente em relação a posicao s5(o tiro), logo o print nao assimila de forma coesa
+	# as outras informacoes da matriz
 	add t0, zero, zero
 	addi t1, zero, 100
 	add t2, zero, zero # a cada 10, um \n
@@ -232,9 +244,9 @@ printa_matriz_pronta:
     		j incremento_controle_prin_pronta
     	loop_pronta:		# teste entre a word s5 e 10
     		blt t3, s5 printa_navio		# maior i=ou igual 10.     193
-    		beq s5, t3, printa_x
+    		beq s5, t3, printa_x		# se s5 = 10 printo o x
     		printa_navio:
-    			lw a0, (a1)
+    			lw a0, (a1)	# grava/printa na matriz
         			li a7, 1
         			ecall
         			li a0, 32       # 32 = space (tabela ascii)
@@ -242,7 +254,7 @@ printa_matriz_pronta:
         			ecall
         			j incremento_controle_prin_pronta
     		printa_x:
-    			li a0, 88
+    			li a0, 88	# print @ (Arroba)
     			li a7, 11
     			ecall
     			li a0, 32       # 32 = space (tabela ascii)
@@ -251,6 +263,7 @@ printa_matriz_pronta:
     			j incremento_controle_prin_pronta
     	
     incremento_controle_prin_pronta:
+    	# incrementos para o loop
         addi a1, a1, 4
         addi t0, t0, 1
         addi t2, t2, 1
@@ -262,7 +275,15 @@ printa_matriz_pronta:
 
 
 
-
+# essa funcao eh a tela inicial do nosso jogo
+# a partir dela temos 3 opcoes
+# 0- reiniciar o jogo. A ideia era reiniciar/zerar a matriz, mas a funcao esta incompleta
+# 1- mostrar estado atual da matriz. Escolhendo a opcao 1 podemos ter a visao do estado da matriz. a funcao esta correta
+# porem com um pequeno bug, nao criamos uma condicao que impedisse somar duas vezes o valor na mesma posicao
+# 2- aqui eh onde realizamos os tiros. eh feito uma comparaca entre a soma das posicoes do tiro (L * QTD_colunas + C) * 4)
+# e a mesma posicao da matriz. Se o valor for maior que 0, significa que acertamos. caso o valor seja igual a 0 erramos o tiro
+# acreditamos que no rotulo tela_inicial poderiamos ter feito mais testes, e criado outras condicoes para nao ter que
+# fazer tantos testes no printa_matriz_pronta
 tela_inicial:
     la s10, matriz      # carrego a matriz em s10
     # load immediate em valores usados posteriormente
@@ -328,26 +349,24 @@ tela_inicial:
         		beq s5, t0, errou		# se s5 = t0, errei
             
 	acertou:
-		la a0, vcAcertos
+		la a0, vcAcertos		# carrega a string
 		li a7, 4
 		ecall
-		addi s5, s5, 10
-    		sw s5, (s10)
-    		addi s7, s7, 1
-       		jal printa_matriz_pronta
-		j tela_inicial
+		addi s5, s5, 10		# adiciona 10, entao nosso valor sera maior que 10
+    		sw s5, (s10)		# armazeno isso
+    		addi s7, s7, 1		# esse era pra ser um contador de tiro
+       		jal printa_matriz_pronta		# print da matriz
+		j tela_inicial			# volta pra tela inicial
 	errou:
-        		la a0, vcErros
+        		la a0, vcErros		# carrega a string
 		li a7, 4
 		ecall
-		addi s5, s5, 10
-    		sw s5, (s10)
-        		jal printa_matriz_pronta
+		addi s5, s5, 10		# valor sera igual a 10
+    		sw s5, (s10)		# salvo
+        		jal printa_matriz_pronta		# print com um x no meio dos arrobas
 		j tela_inicial	
 		
 	endII:
             ret    
-
-
 fim:
     nop
